@@ -3,7 +3,7 @@
 <head>
     <title>Image Converter Pro</title>
 
-    <!-- jsPDF Library -->
+    <!-- jsPDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <link rel="stylesheet" href="style.css">
@@ -12,23 +12,20 @@
 
 <header>
     <h1>🖼️ Image Converter Pro</h1>
-    <p>Convert Images to PDF & JPG Easily</p>
+    <p>Convert Images to PDF & JPG</p>
 </header>
 
 <div class="container">
 
-    <!-- Upload Section -->
     <div class="card">
         <h2>Upload Images</h2>
         <input type="file" id="imageInput" accept="image/*" multiple>
 
         <button onclick="convertToPDF()">Convert to PDF</button>
         <button onclick="downloadPDF()">Download PDF</button>
-        <button onclick="downloadJPG()">Download JPG</button>
         <button onclick="convertToJPG()">Convert to JPG</button>
     </div>
 
-    <!-- Preview Section -->
     <div class="card">
         <h2>Preview</h2>
         <div id="previewContainer"></div>
