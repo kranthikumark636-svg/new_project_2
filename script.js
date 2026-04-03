@@ -1,15 +1,14 @@
 let images = [];
 let pdfBlob = null;
 
+// Load Images
 document.getElementById("imageInput").addEventListener("change", function(e) {
     let files = e.target.files;
 
     images = [];
     document.getElementById("previewContainer").innerHTML = "";
 
-    for (let i = 0; i < files.length; i++) {
-        let file = files[i];
-
+    for (let file of files) {
         let reader = new FileReader();
 
         reader.onload = function(event) {
@@ -17,7 +16,6 @@ document.getElementById("imageInput").addEventListener("change", function(e) {
 
             let img = document.createElement("img");
             img.src = event.target.result;
-
             document.getElementById("previewContainer").appendChild(img);
         };
 
@@ -25,9 +23,10 @@ document.getElementById("imageInput").addEventListener("change", function(e) {
     }
 });
 
+// Convert to PDF (FIXED SIZE)
 function convertToPDF() {
     if (images.length === 0) {
-        alert("Please upload images!");
+        alert("Upload images first!");
         return;
     }
 
@@ -35,15 +34,26 @@ function convertToPDF() {
     let pdf = new jsPDF();
 
     images.forEach((imgData, index) => {
-        if (index > 0) pdf.addPage();
-        pdf.addImage(imgData, 'JPEG', 10, 10, 180, 160);
+        let img = new Image();
+        img.src = imgData;
+
+        img.onload = function () {
+            let width = pdf.internal.pageSize.getWidth();
+            let height = (img.height * width) / img.width;
+
+            if (index > 0) pdf.addPage();
+            pdf.addImage(imgData, "JPEG", 0, 0, width, height);
+
+            // Save after last image
+            if (index === images.length - 1) {
+                pdfBlob = pdf.output("blob");
+                alert("PDF Ready!");
+            }
+        };
     });
-
-    pdfBlob = pdf.output("blob");
-
-    alert("PDF ready! Click Download.");
 }
 
+// Download PDF
 function downloadPDF() {
     if (!pdfBlob) {
         alert("Convert first!");
@@ -56,29 +66,16 @@ function downloadPDF() {
     link.click();
 }
 
-function downloadJPG() {
+// Convert to JPG (FULLY FIXED)
+function convertToJPG() {
     if (images.length === 0) {
         alert("Upload images first!");
         return;
     }
 
     images.forEach((imgData, index) => {
-        let link = document.createElement("a");
-        link.href = imgData;
-        link.download = "image_" + (index + 1) + ".jpg";
-        link.click();
-    });
-}
-
-function convertToJPG() {
-    if (images.length === 0) {
-        alert("Please upload images!");
-        return;
-    }
-
-    images.forEach((imgData, index) => {
         let img = new Image();
-        img.src = imgData;
+        img.crossOrigin = "anonymous"; // FIX
 
         img.onload = function () {
             let canvas = document.createElement("canvas");
@@ -87,17 +84,20 @@ function convertToJPG() {
             canvas.width = img.width;
             canvas.height = img.height;
 
+            // White background fix
             ctx.fillStyle = "#ffffff";
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
             ctx.drawImage(img, 0, 0);
 
-            let jpgData = canvas.toDataURL("image/jpeg", 0.9);
+            let jpg = canvas.toDataURL("image/jpeg", 0.95);
 
             let link = document.createElement("a");
-            link.href = jpgData;
-            link.download = "converted_" + (index + 1) + ".jpg";
+            link.href = jpg;
+            link.download = `converted_${index + 1}.jpg`;
             link.click();
         };
+
+        img.src = imgData;
     });
 }
