@@ -36,7 +36,6 @@ function convertToPDF() {
 
     images.forEach((imgData, index) => {
         if (index > 0) pdf.addPage();
-
         pdf.addImage(imgData, 'JPEG', 10, 10, 180, 160);
     });
 
@@ -53,6 +52,52 @@ function downloadPDF() {
 
     let link = document.createElement("a");
     link.href = URL.createObjectURL(pdfBlob);
-    link.download = "multi-image.pdf";
+    link.download = "images.pdf";
     link.click();
+}
+
+function downloadJPG() {
+    if (images.length === 0) {
+        alert("Upload images first!");
+        return;
+    }
+
+    images.forEach((imgData, index) => {
+        let link = document.createElement("a");
+        link.href = imgData;
+        link.download = "image_" + (index + 1) + ".jpg";
+        link.click();
+    });
+}
+
+function convertToJPG() {
+    if (images.length === 0) {
+        alert("Please upload images!");
+        return;
+    }
+
+    images.forEach((imgData, index) => {
+        let img = new Image();
+        img.src = imgData;
+
+        img.onload = function () {
+            let canvas = document.createElement("canvas");
+            let ctx = canvas.getContext("2d");
+
+            canvas.width = img.width;
+            canvas.height = img.height;
+
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.drawImage(img, 0, 0);
+
+            let jpgData = canvas.toDataURL("image/jpeg", 0.9);
+
+            let link = document.createElement("a");
+            link.href = jpgData;
+            link.download = "converted_" + (index + 1) + ".jpg";
+            link.click();
+        };
+    });
 }
